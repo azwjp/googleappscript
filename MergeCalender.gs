@@ -1,3 +1,29 @@
+function InputtingCalender(id, name) {
+  this.id = id;
+  if (name == undefined) {
+    this.changeName = false;
+  } else {
+    this.changeName = true;
+    this.newName = name;
+  }
+}
+InputtingCalender.prototype = {
+  outputEvent: function(event, calender) {
+    var name = outputPrefix + (this.changeName ? this.newName : event.getTitle()) + outputSuffix;
+    
+    if (event.isAllDayEvent()) {
+      if (addAllDayEvent) {
+        calender.createAllDayEvent(name, event.getStartTime(), event.getEndTime());
+      }
+    } else {
+      calender.createEvent(name, event.getStartTime(), event.getEndTime());
+    }
+  },
+  getAllEvents: function(now, end) {
+    return CalendarApp.getCalendarById(this.id).getEvents(now, end);
+  }
+};
+
 var inputCalenders = [new InputtingCalender("id of calender", "busy"), // change the titles
                       new InputtingCalender("id of calender") // don't change the title 
                      ];
@@ -8,6 +34,7 @@ var searchRangeDaysBefore = 1;
 var searchRangeDaysAfter = 365;
 var addAllDayEvent = false;
 
+
 function myFunction() {
   var now = new Date();
   now.setDate(now.getDate() - searchRangeDaysBefore);
@@ -15,7 +42,7 @@ function myFunction() {
   end.setDate(end.getDate() + searchRangeDaysAfter);
   const outputCalender = CalendarApp.getCalendarById(outputCalenderId);
   
-  deleteAutoEvents(outputCalender, now, end);
+  deleteIfAutoEvents(outputCalender, now, end);
   
   var inputLength = inputCalenders.length;
   for (var i = 0; i < inputLength; i++) {
@@ -58,34 +85,6 @@ function isAutomaticallyAdded(event) {
           && (isNotEmptyString(outputSuffix) ? title.indexOf(outputSuffix) != -1 : true));
 }
 
-/*
- * TODO
- */
 function isNotEmptyString(string) {
   return string.length != 0;
 }
-
-
-function InputtingCalender(id, name) {
-  this.id = id;
-  if (name == undefined) {
-    this.changeName = false;
-  } else {
-    this.changeName = true;
-    this.newName = name;
-  }
-}
-InputtingCalender.prototype.outputEvent = function(event, calender) {
-  var name = outputPrefix + (this.changeName ? this.newName : event.getTitle()) + outputSuffix;
-  
-  if (event.isAllDayEvent()) {
-    if (addAllDayEvent) {
-      calender.createAllDayEvent(name, event.getStartTime(), event.getEndTime());
-    }
-  } else {
-    calender.createEvent(name, event.getStartTime(), event.getEndTime());
-  }
-};
-InputtingCalender.prototype.getAllEvents = function(now, end) {
-  return CalendarApp.getCalendarById(this.id).getEvents(now, end);
-};
