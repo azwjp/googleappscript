@@ -4,7 +4,7 @@ var inputCalenders = [new InputtingCalender("id of calender", "busy"), // change
 var outputCalenderId = "id of the calender for output";
 var outputPrefix = "";
 var outputSuffix = " [Auto]";
-var searchRangeDaysBefore = 7;
+var searchRangeDaysBefore = 1;
 var searchRangeDaysAfter = 365;
 var addAllDayEvent = false;
 
@@ -27,16 +27,17 @@ function myFunction() {
   }
 }
 
-function deleteAllAutoEvents() {
+function deleteAutoEvents() {
   var now = new Date();
+  now.setDate(now.getDate() - searchRangeDaysBefore);
   var end = new Date();
-  end.setDate(end.getDate() + searchRangeDays);
+  end.setDate(end.getDate() + searchRangeDaysAfter);
   const outputCalender = CalendarApp.getCalendarById(outputCalenderId);
     
   deleteAutoEvents(outputCalender, now, end);
 }
 
-function deleteAutoEvents(calender, start, end) {
+function deleteIfAutoEvents(calender, start, end) {
   var events = calender.getEvents(start, end);
   var len = events.length;
   for (var i = 0; i < len; i++) {
@@ -45,10 +46,6 @@ function deleteAutoEvents(calender, start, end) {
       e.deleteEvent();
     }
   }
-}
-
-function addAsNewEvent(event, calender) {
-  
 }
 
 /*
@@ -69,14 +66,14 @@ function isNotEmptyString(string) {
 }
 
 
-function InputtingCalender(id) {
-  this.id = id;
-  this.changeName = false;
-}
 function InputtingCalender(id, name) {
   this.id = id;
-  this.changeName = true;
-  this.newName = name;
+  if (name == undefined) {
+    this.changeName = false;
+  } else {
+    this.changeName = true;
+    this.newName = name;
+  }
 }
 InputtingCalender.prototype.outputEvent = function(event, calender) {
   var name = outputPrefix + (this.changeName ? this.newName : event.getTitle()) + outputSuffix;
@@ -90,5 +87,5 @@ InputtingCalender.prototype.outputEvent = function(event, calender) {
   }
 };
 InputtingCalender.prototype.getAllEvents = function(now, end) {
-    return CalendarApp.getCalendarById(this.id).getEvents(now, end);
+  return CalendarApp.getCalendarById(this.id).getEvents(now, end);
 };
